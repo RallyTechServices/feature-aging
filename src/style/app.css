@@ -1,0 +1,32 @@
+.app {
+}
+.tsinfolink {
+    position:absolute;
+    right:0px;
+    width: 14px;
+    height: 14px;
+    border-radius: 7px;
+    text-align: center;
+    color: white;
+    background: #C0C0C0;
+    border-style: solid;
+    border-width: 1px;
+    margin-top: 25px;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.rally-upper-bold {
+    color: #222;
+    cursor: default;
+    font-family: ProximaNovaSemiBold,Helvetica,Arial;
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 12px;
+    text-transform: uppercase;
+}
+
+.rally-panel-header {
+    font-size: 10px;
+    background-color: #e6e6e6;
+}
