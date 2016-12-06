@@ -131,6 +131,7 @@ Ext.define("portfolio-aging", {
                 pageSize:  data.length
             }),
             showPagingToolbar: false,
+            showRowActionsColumn: false,
             flex: 1
         });
 

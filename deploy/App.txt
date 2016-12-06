@@ -3,12 +3,12 @@
 <head>
     <title>Portfolio Aging</title>
     <!--  (c) 2016 CA Technologies.  All Rights Reserved. -->
-    <!--  Build Date: Tue Nov 29 2016 06:40:04 GMT-0700 (MST) -->
+    <!--  Build Date: Tue Dec 06 2016 06:43:38 GMT-0700 (MST) -->
     
     <script type="text/javascript">
-        var APP_BUILD_DATE = "Tue Nov 29 2016 06:40:04 GMT-0700 (MST)";
+        var APP_BUILD_DATE = "Tue Dec 06 2016 06:43:38 GMT-0700 (MST)";
         var BUILDER = "kcorkan";
-        var CHECKSUM = 59053986881;
+        var CHECKSUM = 59148319920;
     </script>
     
     <script type="text/javascript" src="/apps/2.1/sdk.js"></script>
@@ -1318,6 +1318,7 @@ Ext.define("portfolio-aging", {
                 pageSize:  data.length
             }),
             showPagingToolbar: false,
+            showRowActionsColumn: false,
             flex: 1
         });
 
