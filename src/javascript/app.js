@@ -4,7 +4,7 @@ Ext.define("portfolio-aging", {
     logger: new Rally.technicalservices.Logger(),
     defaults: { margin: 10 },
     items: [
-        {xtype:'container',itemId:'selector_box', flex: 1, float: 'right', tpl: '<div class="no-data-container"><div class="secondary-message">{message}</div></div>'},
+        {xtype:'container',itemId:'selector_box', layout: 'hbox', flex: 1, float: 'right', tpl: '<div class="no-data-container"><div class="secondary-message">{message}</div></div>'},
         {xtype:'container',itemId:'grid_box', flex: 1}
     ],
 
@@ -23,6 +23,7 @@ Ext.define("portfolio-aging", {
             orFilter: false
         }
     },
+
 
     portfolioItemTypes: null,
     portfolioItemStates: null,
@@ -59,14 +60,76 @@ Ext.define("portfolio-aging", {
 
         return true;
     },
-    initializeApp: function(results){
-        this.logger.log('initializeApp', results);
-        //this.portfolioItemTypes = results[0];
-        //this.portfolioItemStates = results[1];
+    initializeApp: function(){
+        this.logger.log('initializeApp');
 
         this.getSelectorBox().update("");
+        this.getSelectorBox().add({
+            xtype: 'container',
+            flex: 1
+        });
+        this.getSelectorBox().add({
+            xtype: 'rallybutton',
+            iconCls: 'icon-export',
+            cls: 'rly-small secondary',
+            handler: this.exportData,
+            scope: this
+        });
 
         this.fetchData();
+    },
+    exportData: function(button){
+        var menu = Ext.widget({
+            xtype: 'rallymenu',
+            items: [{
+                    text: 'Export...',
+                    handler: function(){
+                        var grid = this.down('rallygrid');
+                        if (!grid){
+                            return;
+                        }
+
+                        var store = grid.getStore(),
+                            columns = this.getColumnCfgs(),
+                            headers = [];
+
+                        Ext.Array.each(columns, function(c){
+                            if (c.columns && c.columns.length > 0){
+                                var txt = c.text;
+                                Ext.Array.each(c.columns, function(subcol){
+                                    headers.push(Ext.String.format(" {1} ({0})",txt, subcol.text));
+                                });
+                            } else {
+                                headers.push(c.text);
+                            }
+                        });
+
+                        var csv = [headers.join(',')];
+                        Ext.Array.each(store.getRange(), function(r){
+                            var row = [];
+                            Ext.Array.each(columns, function(c){
+                                if (c.columns && c.columns.length > 0){
+                                    Ext.Array.each(c.columns, function(subcol){
+                                        row.push(r.get(subcol.dataIndex));
+                                    });
+                                } else {
+                                    row.push(r.get(c.dataIndex));
+                                }
+                            });
+                            csv.push(row.join(','));
+                        });
+                        csv = csv.join('\r\n');
+                        this.logger.log('exportData', csv);
+                        var fileName = Ext.String.format("portfolio-aging-{0}.csv",Rally.util.DateTime.format(new Date(), 'Y-m-d-h-i-s'));
+                        Rally.technicalservices.FileUtilities.saveCSVToFile(csv,fileName);
+                    },
+                    scope: this
+                }]
+        });
+        menu.showBy(button.getEl());
+        if(button.toolTip) {
+            button.toolTip.hide();
+        }
     },
     fetchData: function(){
         this.logger.log('fetchData');
@@ -179,23 +242,25 @@ Ext.define("portfolio-aging", {
         return Ext.String.format('{0}_{1}', state, idx);
     },
     fetchWsapiData: function(projectRef){
-
         var filters = this.getFilters();
-
+        this.logger.log('fetchWsapiData', projectRef);
         return CA.agile.technicalservices.Toolbox.fetchWsapiRecords({
             model: this.getPortfolioItemType(),
             fetch: ['ObjectID','StateChangedDate','State','Name'],
             filters: filters,
             context: {project: projectRef, projectScopeDown: true}
         });
+
     },
     getFilters: function(){
+
         if (this.getSetting('query')){
             this.logger.log('getFilters queryString provided: ', this.getSetting('query'));
             return Rally.data.wsapi.Filter.fromQueryString(this.getSetting('query'));
         }
 
         var filters = [];
+
         if (this.getSetting('lastUpdateDateAfter')){
             this.logger.log('getFilters lastUpdateDateAfter provided: ', this.getSetting('lastUpdateDateAfter'));
             filters.push({
@@ -213,6 +278,7 @@ Ext.define("portfolio-aging", {
                 value: Rally.util.DateTime.toIsoString(new Date(this.getSetting('creationDateAfter')))
             });
         }
+
         if (filters.length > 1){
             var orFilters = this.getSetting('orFilter');
             if (orFilters === "true" || orFilters === true){
@@ -294,7 +360,7 @@ Ext.define("portfolio-aging", {
         var states = [],
             stateSetting = this.getSetting('portfolioItemStates');
         if (!Ext.isArray(stateSetting)){
-            states = Ext.JSON.decode(stateSetting);
+            states = stateSetting.split(','); //Ext.JSON.decode(stateSetting);
         } else {
             states = stateSetting;
         }
@@ -303,11 +369,14 @@ Ext.define("portfolio-aging", {
     getProjectGroups: function(){
         var groups = [],
             group_setting = this.getSetting('projectGroups');
+        this.logger.log('getProjectGroups', group_setting);
+
         if (!Ext.isArray(group_setting)){
             groups = Ext.JSON.decode(group_setting);
         } else {
             groups = group_setting;
         }
+        this.logger.log('getProjectGroups', groups);
         return groups;
     },
     getSettingsFields: function(){
@@ -336,7 +405,6 @@ Ext.define("portfolio-aging", {
             handlesEvents: {
                 select: function(ptpicker){
                     var model = ptpicker.getRecord() && ptpicker.getRecord().get('TypePath');
-                    console.log('select', model);
                     if (model){
                         this.field = 'State';
                         this.refreshWithNewModel(model, 'State');
@@ -344,7 +412,6 @@ Ext.define("portfolio-aging", {
                 },
                 change: function(ptpicker){
                     var model = ptpicker.getRecord() && ptpicker.getRecord().get('TypePath');
-                    console.log('change', model);
                     if (model){
                         this.field = 'State';
                         this.refreshWithNewModel(model, 'State');
@@ -352,7 +419,6 @@ Ext.define("portfolio-aging", {
                 },
                 ready: function(ptpicker){
                     var model = ptpicker.getRecord() && ptpicker.getRecord().get('TypePath');
-                    console.log('ready', model);
                     if (model){
                         this.field = 'State';
                         this.refreshWithNewModel(model, 'State');

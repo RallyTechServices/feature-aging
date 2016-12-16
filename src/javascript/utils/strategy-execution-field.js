@@ -125,14 +125,13 @@ Ext.define('CA.agile.technicalservices.StrategyExecutionGroupSettingsField',{
 
                                 var group_name = value.groupName;
                                 var strategy_project = value.strategyProject;
-                                var execution_project = value.executionProject;
 
                                 store.add({
                                     groupName: group_name,
                                     strategyProjectName: strategy_project.get('_refObjectName'),
                                     strategyProjectRef: strategy_project.get('_ref'),
-                                    executionProjectName: execution_project.get('_refObjectName'),
-                                    executionProjectRef: execution_project.get('_ref')
+                                    executionProjectName: null,
+                                    executionProjectRef: null
                                 });
                             }
                         }
@@ -174,17 +173,18 @@ Ext.define('CA.agile.technicalservices.StrategyExecutionGroupSettingsField',{
         },
             {
                 dataIndex: 'groupName',
-                text: this.groupColumnDisplayName
+                text: this.groupColumnDisplayName,
+                flex: 1
             },
             {
                 dataIndex: 'strategyProjectName',
                 text: this.strategyColumnDisplayName,
                 flex: 1
-            },
-            {
-                dataIndex: 'executionProjectName',
-                text: this.executionColumnDisplayName,
-                flex: 1
+            //},
+            //{
+            //    dataIndex: 'executionProjectName',
+            //    text: this.executionColumnDisplayName,
+            //    flex: 1
             }];
     },
 
