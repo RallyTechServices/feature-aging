@@ -120,27 +120,14 @@ Ext.define('CA.agile.technicalservices.StrategyExecutionPickerDialog',{
             }
         });
 
-        this.execution_selector = container.add({
-            xtype: 'rallyprojectpicker',
-            showMostRecentlyUsedProjects: false,
-            workspace: Rally.getApp().getContext().getWorkspaceRef(),
-            fieldLabel: this.executionLabel,
-            labelAlign: 'top',
-            margin: 5,
-            listeners: {
-                scope: this,
-                change: this._enableDisableDoneButton
-            }
-        });
     },
 
     _enableDisableDoneButton: function() {
-        var execution_project = this.execution_selector && this.execution_selector.getValue();
         var strategy_project = this.strategy_selector && this.strategy_selector.getValue();
         var group_name = this.group_name_field && this.group_name_field.getValue();
 
-        if ( ! execution_project || ! strategy_project || Ext.isEmpty(group_name)) {
-            this._disableDoneButton();
+        if (! strategy_project || Ext.isEmpty(group_name)) {
+                this._disableDoneButton();
         } else {
             this._enableDoneButton();
         }
@@ -155,17 +142,15 @@ Ext.define('CA.agile.technicalservices.StrategyExecutionPickerDialog',{
     },
 
     getSelectedValues: function() {
-        var execution_project = this.execution_selector && this.execution_selector.getSelectedRecord();
         var strategy_project = this.strategy_selector && this.strategy_selector.getSelectedRecord();
         var group_name = this.group_name_field && this.group_name_field.getValue();
-        if ( ! execution_project || ! strategy_project || Ext.isEmpty(group_name)) {
+        if ( ! strategy_project || Ext.isEmpty(group_name)) {
             return;
         }
 
         return {
             groupName: group_name,
-            strategyProject: strategy_project,
-            executionProject: execution_project
+            strategyProject: strategy_project
         }
     }
 });
